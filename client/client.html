@@ -6,7 +6,90 @@
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
   <script type="text/babel">
+    const handleResponse = (xhr) => {
+    
+    const type = xhr.getResponseHeader('content-type');
+    const content = document.querySelector('#content');
+    const messageHTML = document.createElement('p');
+    //console.log(xhr.status);
+    // Set the response status based off the header
+    switch(xhr.status) {
+      case 200:
+        // Set response status to the 200 message
+        content.innerHTML = `<b>Success</b>`;
+        break;
+      case 400:
+        // Set response status to the 400 message
+        content.innerHTML = `<b>Bad Request</b>`;
+        break;
+      case 401: 
+        content.innerHTML = `<b>Unauthorized</b>`;
+        break;
+      case 403:
+        content.innerHTML = `<b>Forbidden</b>`;
+        break;
+      case 404: 
+        content.innerHTML = `<b>Not Found</b>`;
+        break;
+      case 500:
+        content.innerHTML = `<b>Internal Server Error</b>`;
+        break;
+      case 501:
+        content.innerHTML = `<b>Not Implemented</b>`;
+        break;
+      default:
+        break; // break extra hard :P
+    }
+    //console.log(xhr.response);
+    //const obj = JSON.parse(xhr.response);
+    
+    //console.log(type);
+    // If the content-type is JSON, output it as a JSON string
+    if(type === 'application/json') {
+      // Parse xhr.response as a JSON object
+      // Update the HTML to show the response
+      const obj = JSON.parse(xhr.response);
+      messageHTML.innerHTML = `${obj.message}`; 
+    } else if(type === 'text/xml') {
+      // Print the XML to the console
+      // Update the HTML to show the response
+      messageHTML.innerHTML = xhr.response.querySelector('message').textcontent;
+    }
+    content.appendChild(messageHTML);
+  };
 
+  const sendAjax = (url, acceptedType) => {
+    // Handle sending an ajax request to the server
+    // Should be included in the assignment details and/or video lectures
+    const xhr = new XMLHttpRequest();
+    
+    xhr.open("GET", url);
+    xhr.setRequestHeader('Accept', acceptedType);
+
+    xhr.onload = () => handleResponse(xhr);
+
+    xhr.send();
+  };
+
+  const init = () => {
+    // Get a reference to button#send
+    const sendButton = document.querySelector("#send");
+
+    const makeRequest = () => {
+      // Get the URL value from select#page
+      const urlValue = document.querySelector("#page").value;
+      // Get the type value from select#type
+      const typeValue = document.querySelector("#type").value;
+      console.log(typeValue);
+      // Call sendAjax using the URL and type
+      sendAjax(urlValue, typeValue);
+    };
+
+    // Add an event listener to the send button for makeRequest()
+    sendButton.addEventListener('click', makeRequest);
+  };
+
+  window.onload = init;
   </script>
 </head>
 <body>
